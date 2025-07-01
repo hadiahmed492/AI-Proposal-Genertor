@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Proposal Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="url"],
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="url"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .job-description {
+            min-height: 150px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            display: none;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        .form-tips {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .form-tips h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .form-tips ul {
+            padding-left: 20px;
+        }
+
+        .form-tips li {
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .form-container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI Proposal Generator</h1>
+            <p>Generate winning freelance proposals in seconds</p>
+        </div>
+        
+        <div class="form-container">
+            <div class="form-tips">
+                <h3>💡 Tips for Best Results:</h3>
+                <ul>
+                    <li>Be specific about your skills and experience</li>
+                    <li>Copy the complete job description for better matching</li>
+                    <li>Include relevant portfolio links</li>
+                    <li>Check your email for the generated proposals</li>
+                </ul>
+            </div>
+
+            <form id="proposalForm">
+                <div class="form-group">
+                    <label for="freelancer_name">Your Full Name <span class="required">*</span></label>
+                    <input type="text" id="freelancer_name" name="freelancer_name" required placeholder="e.g., John Smith">
+                </div>
+
+                <div class="form-group">
+                    <label for="freelancer_email">Your Email Address <span class="required">*</span></label>
+                    <input type="email" id="freelancer_email" name="freelancer_email" required placeholder="john@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="freelancer_skills">Your Key Skills <span class="required">*</span></label>
+                    <input type="text" id="freelancer_skills" name="freelancer_skills" required placeholder="e.g., Excel, CRM, Data Entry, Customer Service, Communication">
+                </div>
+
+                <div class="form-group">
+                    <label for="freelancer_experience">Your Experience Summary</label>
+                    <textarea id="freelancer_experience" name="freelancer_experience" placeholder="Brief description of your relevant experience, years of work, types of clients you've worked with, etc."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="portfolio_link">Portfolio/Website Link</label>
+                    <input type="url" id="portfolio_link" name="portfolio_link" placeholder="https://yourportfolio.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="job_title">Job Title</label>
+                    <input type="text" id="job_title" name="job_title" placeholder="e.g., Virtual Assistant, Data Entry Specialist">
+                </div>
+
+                <div class="form-group">
+                    <label for="job_description">Complete Job Description <span class="required">*</span></label>
+                    <textarea id="job_description" name="job_description" class="job-description" required placeholder="Paste the complete job posting here. Include requirements, responsibilities, and any specific details mentioned by the client."></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    🚀 Generate AI Proposals
+                </button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Generating your personalized proposals...</p>
+                <p><small>This may take 30-60 seconds</small></p>
+            </div>
+
+            <div class="result" id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // Replace this with your actual n8n webhook URL
+        const WEBHOOK_URL = 'https://your-n8n-instance.com/webhook/job-proposal';
+        
+        document.getElementById('proposalForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            const form = this;
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Generating...';
+            loading.classList.add('show');
+            result.style.display = 'none';
+            
+            // Collect form data
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            
+            // Clean up empty fields
+            Object.keys(data).forEach(key => {
+                if (data[key] === '') {
+                    delete data[key];
+                }
+            });
+            
+            try {
+                console.log('Sending data:', data);
+                
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                console.log('Response status:', response.status);
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                let resultData;
+                try {
+                    resultData = JSON.parse(responseText);
+                } catch (parseError) {
+                    throw new Error('Invalid response format from server');
+                }
+                
+                if (response.ok && resultData.success) {
+                    result.className = 'result success';
+                    result.innerHTML = `
+                        <h3>✅ Success!</h3>
+                        <p>Your AI-generated proposals have been created successfully!</p>
+                        <p><strong>Check your email (${data.freelancer_email}) for the complete proposals.</strong></p>
+                        <p><small>If you don't see the email, check your spam folder.</small></p>
+                    `;
+                    
+                    // Reset form
+                    form.reset();
+                } else {
+                    throw new Error(resultData.error || resultData.message || 'Unknown error occurred');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                result.className = 'result error';
+                result.innerHTML = `
+                    <h3>❌ Error</h3>
+                    <p>Failed to generate proposals: ${error.message}</p>
+                    <p><small>Please check your internet connection and try again. If the problem persists, contact support.</small></p>
+                `;
+            } finally {
+                // Reset UI state
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Generate AI Proposals';
+                loading.classList.remove('show');
+                result.style.display = 'block';
+                
+                // Scroll to result
+                result.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+        
+        // Add some interactive feedback
+        const inputs = document.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateY(-2px)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>
